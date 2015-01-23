@@ -32,5 +32,11 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="E:/eclipse_workspace/Java Libraries/LWJGL/jar/lwjgl.jar" sourcepath="E:/eclipse_workspace/Java Libraries/LWJGL/src.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/E:/eclipse_workspace/Java%20Libraries/LWJGL/doc/javadoc.zip!/"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="E:/eclipse_workspace/Java Libraries/LWJGL/native/windows/x86"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
