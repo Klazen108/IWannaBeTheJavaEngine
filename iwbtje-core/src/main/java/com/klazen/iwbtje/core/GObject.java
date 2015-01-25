@@ -6,6 +6,11 @@ public class GObject {
 	
 	float x,y;
 	
+	public GObject(float x, float y) {
+		this.x=x;
+		this.y=y;
+	}
+	
 	public void draw() {
 		sprite.draw(x, y);
 	}

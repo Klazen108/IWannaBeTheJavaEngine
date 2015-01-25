@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -33,6 +35,12 @@ public class Main {
  
     public void run() {
         System.out.println("Hello LWJGL " + Sys.getVersion() + "!");
+        
+        objects = new LinkedList<GObject>();
+        objects.add(new GObject(200,200));
+        objects.add(new GObject(600,200));
+        objects.add(new GObject(200,400));
+        objects.add(new GObject(600,400));
  
         try {
             init();
@@ -114,7 +122,6 @@ public class Main {
         while ( glfwWindowShouldClose(window) == GL_FALSE ) {
         	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
-        	//drawing code here
 			glUseProgram(pId);
 			glBindVertexArray(vao);
 			glEnableVertexAttribArray(0);
@@ -122,12 +129,24 @@ public class Main {
 			glEnableVertexAttribArray(2);
 			
 			checkGLError();
-			
-			//mode = drawing mode
-			//first = instance to start at
-			//count = number of indices
-			//primcount = number of instances
-			glDrawArraysInstanced(GL_TRIANGLE_STRIP,0,4,4);
+	    	
+	    	float left=0;
+	    	float right=800;
+	    	float top = 0;
+	    	float bottom = 600;
+	    	float near=-1000;
+	    	float far=1000;
+	    	float[] matrix = { 2/(right-left),0,0,-1*(right+left)/(right-left),
+	    			           0,2/(top-bottom),0,-1*(top+bottom)/(top-bottom),
+	    			           0,0,-1/(far-near),-1*(far+near)/(far-near),
+	    			           0,0,0,1};
+			FloatBuffer mB = BufferUtils.createFloatBuffer(matrix.length);
+			mB.put(matrix).flip();
+			int loc = glGetUniformLocation(pId, "pMatrix");
+	    	glUniformMatrix4(loc,true,mB);
+	    	checkGLError();
+
+			draw();
 			
 			checkGLError();
 
@@ -146,15 +165,31 @@ public class Main {
         glDeleteProgram(pId);
     }
     
+    List<GObject> objects;
+    
+    public void draw() {
+    	//for each object
+    	//  get object position
+    	//  increment count
+    	//upload to buffer
+    	//draw instanced
+    	
+		//mode = drawing mode
+		//first = instance to start at
+		//count = number of indices
+		//primcount = number of instances
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP,0,4,4);
+    }
+    
     private int createVAO() {
     	int vao = glGenVertexArrays();
     	glBindVertexArray(vao);
     	
     	{
-	    	float[] vertices = { -.25f, -.25f,
-	    			             -.25f,  .25f,
-	    			              .25f, -.25f,
-	    			              .25f,  .25f };
+	    	float[] vertices = { 0,0,
+	    						100,0,
+	    						0,100,
+	    						100,100};
 	    	FloatBuffer vertB = BufferUtils.createFloatBuffer(vertices.length);
 	    	vertB.put(vertices).flip();
 	    	
@@ -183,10 +218,11 @@ public class Main {
 	    	checkGLError();
     	}
     	{
-	    	float[] instance_positions = { -.75f,0f,
-	    								   -.25f,0f,
-	    								   .25f,0f,
-	    								   .75f,0f };
+	    	float[] instance_positions = { 100,100,
+	    								   600,100,
+	    								   100,400,
+	    								   600,400
+	    								  };
 	    	FloatBuffer ipB = BufferUtils.createFloatBuffer(instance_positions.length);
 	    	ipB.put(instance_positions).flip();
 	    	
@@ -199,9 +235,7 @@ public class Main {
 
 	    	checkGLError();
     	}
-    	
-    	//---------------
-    	
+
     	glBindBuffer(GL_ARRAY_BUFFER,0);
     	glBindVertexArray(0);
     	

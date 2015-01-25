@@ -9,5 +9,6 @@ public class GSprite {
 	}
 	
 	public void draw(float x, float y) {
+		
 	}
 }
