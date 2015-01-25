@@ -121,13 +121,15 @@ public class Main {
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
 			
-			int error = glGetError();
-			if (error != GL_NO_ERROR) System.out.println("Error occurred pre render! Code: "+error);
+			checkGLError();
 			
-			glDrawArraysInstanced(GL_TRIANGLES,0,4,3);
+			//mode = drawing mode
+			//first = instance to start at
+			//count = number of indices
+			//primcount = number of instances
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP,0,4,4);
 			
-			error = glGetError();
-			if (error != GL_NO_ERROR) System.out.println("Error occurred post render! Code: "+error);
+			checkGLError();
 
 			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(1);
@@ -148,56 +150,55 @@ public class Main {
     	int vao = glGenVertexArrays();
     	glBindVertexArray(vao);
     	
-    	float[] vertices = { -.25f, -.25f,
-    			              0f, -.25f,
-    			              0f,  .25f };
-    	FloatBuffer vertB = BufferUtils.createFloatBuffer(vertices.length);
-    	vertB.put(vertices).flip();
-    	
-    	int vboVert = glGenBuffers();
-    	glBindBuffer(GL_ARRAY_BUFFER, vboVert);
-    	glBufferData(GL_ARRAY_BUFFER, vertB, GL_STATIC_DRAW);
-    	glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
-    	glEnableVertexAttribArray(0);
-    	
-    	int error = glGetError();
-    	if (error != GL_NO_ERROR) System.out.println("Error occurred! Code: "+error);
+    	{
+	    	float[] vertices = { -.25f, -.25f,
+	    			             -.25f,  .25f,
+	    			              .25f, -.25f,
+	    			              .25f,  .25f };
+	    	FloatBuffer vertB = BufferUtils.createFloatBuffer(vertices.length);
+	    	vertB.put(vertices).flip();
+	    	
+	    	int vboVert = glGenBuffers();
+	    	glBindBuffer(GL_ARRAY_BUFFER, vboVert);
+	    	glBufferData(GL_ARRAY_BUFFER, vertB, GL_STATIC_DRAW);
+	    	glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
+	    	glEnableVertexAttribArray(0);
+	    	
+	    	checkGLError();
+    	}
+    	{
+	    	float[] colors = { 1.0f, 0.0f, 0.0f, 1.0f,
+	    					 0.0f, 1.0f, 0.0f, 1.0f,
+	    					 0.0f, 0.0f, 1.0f, 1.0f,
+	    					 1.0f, 0.0f, 1.0f, 1.0f};
+	    	FloatBuffer colorB = BufferUtils.createFloatBuffer(colors.length);
+	    	colorB.put(colors).flip();
+	    	
+	    	int vboCol = glGenBuffers();
+	    	glBindBuffer(GL_ARRAY_BUFFER, vboCol);
+	    	glBufferData(GL_ARRAY_BUFFER, colorB, GL_STATIC_DRAW);
+	    	glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
+	    	glEnableVertexAttribArray(1);
+	
+	    	checkGLError();
+    	}
+    	{
+	    	float[] instance_positions = { -.75f,0f,
+	    								   -.25f,0f,
+	    								   .25f,0f,
+	    								   .75f,0f };
+	    	FloatBuffer ipB = BufferUtils.createFloatBuffer(instance_positions.length);
+	    	ipB.put(instance_positions).flip();
+	    	
+	    	int vboIp = glGenBuffers();
+	    	glBindBuffer(GL_ARRAY_BUFFER, vboIp);
+	    	glBufferData(GL_ARRAY_BUFFER, ipB, GL_STATIC_DRAW);
+	    	glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
+	    	glVertexAttribDivisor(2,1);
+	    	glEnableVertexAttribArray(2);
 
-    	//---------------
-    	
-    	float[] colors = { 1.0f, 0.0f, 0.0f, 1.0f,
-    					 0.0f, 1.0f, 0.0f, 1.0f,
-    					 0.0f, 0.0f, 1.0f, 1.0f };
-    	FloatBuffer colorB = BufferUtils.createFloatBuffer(colors.length);
-    	colorB.put(colors).flip();
-    	
-    	int vboCol = glGenBuffers();
-    	glBindBuffer(GL_ARRAY_BUFFER, vboCol);
-    	glBufferData(GL_ARRAY_BUFFER, colorB, GL_STATIC_DRAW);
-    	glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
-    	glEnableVertexAttribArray(1);
-
-    	error = glGetError();
-    	if (error != GL_NO_ERROR) System.out.println("Error occurred! Code: "+error);
-
-    	//---------------
-    	
-    	float[] instance_positions = { .25f,.25f,
-    								   -.25f,.25f,
-    								   -.25f,-.25f,
-    								   .25f,-.25f, };
-    	FloatBuffer ipB = BufferUtils.createFloatBuffer(instance_positions.length);
-    	ipB.put(instance_positions).flip();
-    	
-    	int vboIp = glGenBuffers();
-    	glBindBuffer(GL_ARRAY_BUFFER, vboIp);
-    	glBufferData(GL_ARRAY_BUFFER, ipB, GL_STATIC_DRAW);
-    	glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
-    	glVertexAttribDivisor(2,1);
-    	glEnableVertexAttribArray(2);
-
-    	error = glGetError();
-    	if (error != GL_NO_ERROR) System.out.println("Error occurred! Code: "+error);
+	    	checkGLError();
+    	}
     	
     	//---------------
     	
@@ -205,6 +206,15 @@ public class Main {
     	glBindVertexArray(0);
     	
     	return vao;
+    }
+    
+    private void checkGLError() {
+
+    	int error = glGetError();
+    	if (error != GL_NO_ERROR) {
+    		System.out.println("Error occurred! Code: "+error);
+    		throw new RuntimeException();
+    	}
     }
     
     private int createShaderProgram() throws IOException {
